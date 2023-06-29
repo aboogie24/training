@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"training.alfredbrowniii.io/internals/infrastructure"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -11,11 +9,12 @@ import (
 func main() {
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		_, err := infrastructure.CreateInfrastructure(ctx)
+		infra, err := infrastructure.CreateInfrastructure(ctx)
 		if err != nil {
 			return err
 		}
-		fmt.Print("you are here")
+
+		ctx.Export("vpcId: ", infra.Vpc.Id)
 
 		return nil
 	})

@@ -10,6 +10,7 @@ import (
 type Vpc struct {
 	cidrBlock string
 	tags      []map[string]string
+	Id        pulumi.StringOutput
 }
 
 func CreateVpc(ctx *pulumi.Context, vpcName string, cidrBlock string) (*Vpc, error) {
@@ -18,13 +19,8 @@ func CreateVpc(ctx *pulumi.Context, vpcName string, cidrBlock string) (*Vpc, err
 		log.Panic("No vpc name provided")
 	}
 
-	v := &Vpc{
-		cidrBlock: cidrBlock,
-		tags:      []map[string]string{},
-	}
-
-	_, err := nativeEc2.NewVPC(ctx, vpcName, &nativeEc2.VPCArgs{
-		CidrBlock:          pulumi.StringPtr(v.cidrBlock),
+	vpc, err := nativeEc2.NewVPC(ctx, vpcName, &nativeEc2.VPCArgs{
+		CidrBlock:          pulumi.StringPtr(cidrBlock),
 		EnableDnsHostnames: pulumi.BoolPtr(true),
 		EnableDnsSupport:   pulumi.BoolPtr(true),
 		InstanceTenancy:    nil,
@@ -36,6 +32,16 @@ func CreateVpc(ctx *pulumi.Context, vpcName string, cidrBlock string) (*Vpc, err
 		log.Default()
 		return nil, err
 	}
+	vpc_id := vpc.ID().ApplyT(func(id string) string {
+		return id
+	}).(pulumi.StringOutput)
+
+	v := &Vpc{
+		cidrBlock: cidrBlock,
+		tags:      []map[string]string{},
+		Id:        vpc_id,
+	}
 
 	return v, nil
+
 }
