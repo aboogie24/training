@@ -9,6 +9,9 @@ import (
 func main() {
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
+
+		// Deploy all infrastructure resources
+
 		infra, err := infrastructure.CreateInfrastructure(ctx)
 		if err != nil {
 			return err

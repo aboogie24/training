@@ -1,8 +1,10 @@
 package infrastructure
 
 import (
+	"fmt"
 	"reflect"
 
+	"training.alfredbrowniii.io/internals/config"
 	"training.alfredbrowniii.io/internals/subnets"
 	"training.alfredbrowniii.io/internals/vpc"
 
@@ -10,9 +12,11 @@ import (
 )
 
 type infrastructure struct {
+	Config        *config.Config
 	Vpc           *vpc.Vpc
 	PrivateSubnet *subnets.Subnet
 	PublicSubnet  *subnets.Subnet
+	Igw           *subnets.IGW
 }
 
 // ElementType implements pulumi.Input.
@@ -22,12 +26,28 @@ func (*infrastructure) ElementType() reflect.Type {
 
 func CreateInfrastructure(ctx *pulumi.Context) (*infrastructure, error) {
 
+	config, err := config.GetConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("%+v\n", config.Vpc.CidrBlock)
+
 	vpcs, err := vpc.CreateVpc(ctx, "training-vpc", "10.0.0.0/16")
 	if err != nil {
 		return nil, err
 	}
 
-	privateSubnet, err := subnets.CreateSubnets(ctx, "10.0.0.0/20", vpcs.Id.ToStringOutput())
+	privateSubnet, err := subnets.CreatePrivateSubnets(ctx, "10.0.0.0/20", vpcs.Id.ToStringOutput())
+	if err != nil {
+		return nil, err
+	}
+
+	publicSubnet, err := subnets.CreatePublicSubnets(ctx, "10.0.16.0/20", vpcs.Id.ToStringOutput())
+	if err != nil {
+		return nil, err
+	}
+
+	igw, err := subnets.CreateIGW(ctx, vpcs.Id.ToStringOutput())
 	if err != nil {
 		return nil, err
 	}
@@ -35,6 +55,8 @@ func CreateInfrastructure(ctx *pulumi.Context) (*infrastructure, error) {
 	return &infrastructure{
 		Vpc:           vpcs,
 		PrivateSubnet: privateSubnet,
-		PublicSubnet:  &subnets.Subnet{},
+		PublicSubnet:  publicSubnet,
+		Config:        &config,
+		Igw:           &igw,
 	}, nil
 }
