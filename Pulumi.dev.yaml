@@ -2,12 +2,15 @@ config:
   aws-native:region: us-east-1
   training:Environment: dev
   training:name: Training
-  training:subnets:
-    values:
-      private:
-        - 10.0.1.0/24
-      public:
-        - 10.0.2.0/24
-  training:vpc:
-    values:
-      cidrBlock: 10.0.0.0/16
+  vpc:name: "eks-vpc"
+  vpc:cidrBlock: "10.0.0.0/16"
+  vpc:private-subnet-ips: "10.0.0.0/20"
+  vpc:public-subnet-ips: "10.0.16.0/20"
+  tags:version: "0.0.1"
+  tags:author: "aboogie"
+  tags:team: "aboogie"
+  tags:feature: "infra"
+
+  
+
+

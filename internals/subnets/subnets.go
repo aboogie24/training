@@ -9,6 +9,7 @@ import (
 
 type Subnet struct {
 	Cidr string
+	ID   pulumi.StringOutput
 }
 
 func CreatePrivateSubnets(ctx *pulumi.Context, cidr string, id pulumi.StringOutput) (*Subnet, error) {
@@ -18,15 +19,11 @@ func CreatePrivateSubnets(ctx *pulumi.Context, cidr string, id pulumi.StringOutp
 		log.Panic("Cidr not provided  for subnet")
 	}
 
-	s := &Subnet{
-		Cidr: cidr,
-	}
-
-	_, err := ec2.NewSubnet(ctx, "Private-subnet", &ec2.SubnetArgs{
+	subnet_info, err := ec2.NewSubnet(ctx, "Private-subnet", &ec2.SubnetArgs{
 		AssignIpv6AddressOnCreation:   nil,
 		AvailabilityZone:              nil,
 		AvailabilityZoneId:            nil,
-		CidrBlock:                     pulumi.StringPtr(s.Cidr),
+		CidrBlock:                     pulumi.StringPtr(cidr),
 		EnableDns64:                   nil,
 		Ipv6CidrBlock:                 nil,
 		Ipv6Native:                    nil,
@@ -39,6 +36,11 @@ func CreatePrivateSubnets(ctx *pulumi.Context, cidr string, id pulumi.StringOutp
 
 	if err != nil {
 		return nil, err
+	}
+
+	s := &Subnet{
+		Cidr: cidr,
+		ID:   pulumi.StringOutput(subnet_info.ID()),
 	}
 
 	return s, err
@@ -51,15 +53,11 @@ func CreatePublicSubnets(ctx *pulumi.Context, cidr string, id pulumi.StringOutpu
 		log.Panic("Cidr not provided  for subnet")
 	}
 
-	s := &Subnet{
-		Cidr: cidr,
-	}
-
-	_, err := ec2.NewSubnet(ctx, "public-subnet", &ec2.SubnetArgs{
+	subnet_info, err := ec2.NewSubnet(ctx, "public-subnet", &ec2.SubnetArgs{
 		AssignIpv6AddressOnCreation:   nil,
 		AvailabilityZone:              nil,
 		AvailabilityZoneId:            nil,
-		CidrBlock:                     pulumi.StringPtr(s.Cidr),
+		CidrBlock:                     pulumi.StringPtr(cidr),
 		EnableDns64:                   nil,
 		Ipv6CidrBlock:                 nil,
 		Ipv6Native:                    nil,
@@ -72,6 +70,11 @@ func CreatePublicSubnets(ctx *pulumi.Context, cidr string, id pulumi.StringOutpu
 
 	if err != nil {
 		return nil, err
+	}
+
+	s := &Subnet{
+		Cidr: cidr,
+		ID:   pulumi.StringOutput(subnet_info.ID()),
 	}
 
 	return s, err

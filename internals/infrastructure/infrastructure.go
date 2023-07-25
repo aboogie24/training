@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-type infrastructure struct {
+type Infrastructure struct {
 	Config        *config.Config
 	Vpc           *vpc.Vpc
 	PrivateSubnet *subnets.Subnet
@@ -20,11 +20,11 @@ type infrastructure struct {
 }
 
 // ElementType implements pulumi.Input.
-func (*infrastructure) ElementType() reflect.Type {
+func (*Infrastructure) ElementType() reflect.Type {
 	panic("unimplemented")
 }
 
-func CreateInfrastructure(ctx *pulumi.Context) (*infrastructure, error) {
+func CreateInfrastructure(ctx *pulumi.Context) (*Infrastructure, error) {
 
 	config, err := config.GetConfig(ctx)
 	if err != nil {
@@ -52,7 +52,7 @@ func CreateInfrastructure(ctx *pulumi.Context) (*infrastructure, error) {
 		return nil, err
 	}
 
-	return &infrastructure{
+	return &Infrastructure{
 		Vpc:           vpcs,
 		PrivateSubnet: privateSubnet,
 		PublicSubnet:  publicSubnet,
